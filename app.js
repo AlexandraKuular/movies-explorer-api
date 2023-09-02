@@ -8,16 +8,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const router = require('express').Router();
+// const router = require('express').Router();
 const InternalError = require('./middlewares/internalError');
-const { validationLogin, validationRegister } = require('./middlewares/validations');
-const auth = require('./middlewares/auth');
-const {
-  addUser, login,
-} = require('./controllers/users');
-const ErrorNotFoundCode = require('./errors/errorNotFoundCode');
+// const { validationLogin, validationRegister } = require('./middlewares/validations');
+// const auth = require('./middlewares/auth');
+// const {
+//   addUser, login,
+// } = require('./controllers/users');
+// const ErrorNotFoundCode = require('./errors/errorNotFoundCode');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cors = require('./middlewares/cors');
+const routes = require('./routes');
 
 const { PORT = 3000 } = process.env;
 
@@ -33,16 +34,17 @@ app.use(cors);
 
 app.use(requestLogger);
 
-app.post('/signup', validationRegister, addUser);
-app.post('/signin', validationLogin, login);
+app.use('/', routes);
+// app.post('/signup', validationRegister, addUser);
+// app.post('/signin', validationLogin, login);
 
-app.use(auth);
-app.use(router.use('/users', require('./routes/users')));
-app.use(router.use('/movies', require('./routes/movies')));
+// app.use(auth);
+// app.use(router.use('/users', require('./routes/users')));
+// app.use(router.use('/movies', require('./routes/movies')));
 
-router.use((req, res, next) => {
-  next(new ErrorNotFoundCode('Ресурс по адресу не найден.'));
-});
+// router.use((req, res, next) => {
+//   next(new ErrorNotFoundCode('Ресурс по адресу не найден.'));
+// });
 
 app.use(errorLogger);
 app.use(errors());

@@ -12,10 +12,10 @@ const validationUrl = (url) => {
 
 module.exports.validationMovieId = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().required().hex().length(24),
+    _id: Joi.string().required().hex().length(24),
   }),
 });
-// TODO доработать валидацию
+
 module.exports.validationMovie = celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
@@ -50,6 +50,6 @@ module.exports.validationRegister = celebrate({
 module.exports.validationUserInfo = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
+    email: Joi.string().required().email(),
   }),
 });

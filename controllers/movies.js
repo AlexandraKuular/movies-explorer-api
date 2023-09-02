@@ -10,7 +10,34 @@ module.exports.getMovies = (req, res, next) => {
 };
 
 module.exports.createMovie = (req, res, next) => {
-  Movie.create(req.body)
+  const {
+    movieId,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    nameRU,
+    nameEN,
+  } = req.body;
+  const owner = req.user._id;
+  Movie.create({
+    movieId,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    nameRU,
+    nameEN,
+    owner,
+  })
     .then((movie) => {
       res.send({ movie });
     })
@@ -24,14 +51,14 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  Movie.findById(req.params._id)
     .then((movie) => {
       if (!movie) {
         throw new ErrorNotFoundCode('Передан несуществующий _id фильма.');
       }
       if (movie.owner.toString() === req.user._id) {
-        Movie.findByIdAndRemove(req.params.movieId)
-          .then(() => res.status(200).send({ result: true }).catch(next));
+        Movie.findByIdAndRemove(req.params._id)
+          .then(() => { res.status(200).send({ result: true }); });
       } else {
         throw new ForbiddenError('Удалить чужой фильм нельзя.');
       }
