@@ -4,7 +4,7 @@ const ErrorNotFoundCode = require('../errors/errorNotFoundCode');
 const ForbiddenError = require('../errors/forbiddenError');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({}).sort({ createdAt: -1 })
+  Movie.find({ owner: req.user._id }).sort({ createdAt: -1 })
     .then((movies) => res.send(movies))
     .catch(next);
 };

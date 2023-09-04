@@ -1,7 +1,7 @@
 const allowedCors = [
-  'https://alexkuular.nomoreparties.co',
-  'http://alexkuular.nomoreparties.co',
-  'http://localhost:3001',
+  'https://api.movies.alexkuular.nomoredomainsicu.ru',
+  'http://api.movies.alexkuular.nomoredomainsicu.ru',
+  'http://localhost:3000',
 ];
 
 const cors = (req, res, next) => {
