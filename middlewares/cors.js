@@ -1,4 +1,6 @@
 const allowedCors = [
+  'https://api.movies.alexkuular.nomoredomainsicu.ru',
+  'http://api.movies.alexkuular.nomoredomainsicu.ru',
   'https://api.movies.alexkuular.nomoredomainsrocks.ru',
   'http://api.movies.alexkuular.nomoredomainsrocks.ru',
   'http://localhost:3000',
