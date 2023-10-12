@@ -4,7 +4,8 @@ const User = require('../models/user');
 const ErrorCode = require('../errors/errorCode');
 const ErrorNotFoundCode = require('../errors/errorNotFoundCode');
 const ConflictError = require('../errors/conflictError');
-const UnauthorizedError = require('../errors/unauthorizedError');
+
+require('dotenv').config();
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 
@@ -34,24 +35,23 @@ module.exports.addUser = async (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-
-  User.findOne({ email }).select('+password')
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
-      }
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        {
+          expiresIn: '7d',
+        },
+      );
 
-      // сравниваем переданный пароль и хеш из базы
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            // хеши не совпали — отклоняем промис
-            return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
-          }
-          const token = jwt.sign({ _id: user._id }, `${NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key'}`, { expiresIn: '7d' });
-          // вернём токен
-          return res.send({ token });
-        });
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+      });
+      res.send({ token });
     })
     .catch(next);
 };
@@ -81,4 +81,15 @@ module.exports.getMe = (req, res, next) => {
       res.send(user);
     })
     .catch(next);
+};
+
+module.exports.logout = (req, res) => {
+  res.cookie('jwt', '', {
+    maxAge: 0,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+  });
+  res.clearCookie('jwt');
+  return res.send({ message: 'Bye!' });
 };
