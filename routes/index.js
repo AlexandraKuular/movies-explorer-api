@@ -1,20 +1,19 @@
-const router = require('express').Router();
-const { validationLogin, validationRegister } = require('../middlewares/validations');
+const users = require('./users');
+const movies = require('./movies');
+const authorization = require('./authorization');
 const auth = require('../middlewares/auth');
-const {
-  addUser, login,
-} = require('../controllers/users');
-const ErrorNotFoundCode = require('../errors/errorNotFoundCode');
+const NotFoundError = require('../errors/NotFoundError');
+const { errorMessages } = require('../utils/constants');
 
-router.post('/signup', validationRegister, addUser);
-router.post('/signin', validationLogin, login);
+module.exports = function (app) {
+  app.use('/', authorization);
 
-router.use(auth);
-router.use('/users', require('./users'));
-router.use('/movies', require('./movies'));
+  app.use(auth);
 
-router.use((req, res, next) => {
-  next(new ErrorNotFoundCode('Ресурс по адресу не найден.'));
-});
+  app.use('/users', users);
+  app.use('/movies', movies);
 
-module.exports = router;
+  app.all('*', (req, res, next) => {
+    next(new NotFoundError(errorMessages.incorrectPath));
+  });
+};

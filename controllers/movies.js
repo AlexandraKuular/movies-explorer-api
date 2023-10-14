@@ -1,10 +1,11 @@
 const Movie = require('../models/movie');
-const ErrorCode = require('../errors/errorCode');
-const ErrorNotFoundCode = require('../errors/errorNotFoundCode');
-const ForbiddenError = require('../errors/forbiddenError');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const ValidationError = require('../errors/ValidationError');
+const { errorMessages } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({ owner: req.user._id }).sort({ createdAt: -1 })
+  Movie.find({})
     .then((movies) => res.send(movies))
     .catch(next);
 };
@@ -31,19 +32,17 @@ module.exports.createMovie = (req, res, next) => {
     duration,
     year,
     description,
+    owner,
     image,
     trailerLink,
     thumbnail,
     nameRU,
     nameEN,
-    owner,
   })
-    .then((movie) => {
-      res.send({ movie });
-    })
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ErrorCode('Переданы некорректные данные при добавлении фильма.'));
+        next(new ValidationError(errorMessages.createMovie));
       } else {
         next(err);
       }
@@ -53,21 +52,12 @@ module.exports.createMovie = (req, res, next) => {
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
     .then((movie) => {
-      if (!movie) {
-        throw new ErrorNotFoundCode('Передан несуществующий _id фильма.');
+      if (!movie) next(new NotFoundError(errorMessages.movieNotFound));
+      if (req.user._id === movie.owner.toString()) {
+        return movie.remove();
       }
-      if (movie.owner.toString() === req.user._id) {
-        Movie.findByIdAndRemove(req.params._id)
-          .then(() => { res.status(200).send({ result: true }); });
-      } else {
-        throw new ForbiddenError('Удалить чужой фильм нельзя.');
-      }
+      return next(new ForbiddenError(errorMessages.removeMovie));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ErrorCode('Переданы невалидные данные.'));
-      } else {
-        next(err);
-      }
-    });
+    .then((movie) => res.send(movie))
+    .catch(next);
 };
