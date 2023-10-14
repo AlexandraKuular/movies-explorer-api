@@ -4,4 +4,4 @@
 
 IP 51.250.73.174
 
-Backend http://api.movies.explorer.alexkuular.nomoredomainsrocks.ru/
+Backend https://api.movies.explorer.alexkuular.nomoredomainsrocks.ru/
