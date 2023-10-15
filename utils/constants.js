@@ -3,6 +3,7 @@ const allowedCors = [
   'http://movies.explorer.alexkuular.nomoredomainsrocks.ru',
   'localhost:3000',
   'http://localhost:3001',
+  'https://localhost:3001',
   'http://127.0.0.1:3000',
   /(https|http)?:\/\/(?:www\.|(?!www))front-movies.nomoredomains.xyz\/[a-z]+\/|[a-z]+\/|[a-z]+(\/|)/,
 ];

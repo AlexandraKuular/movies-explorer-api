@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const NotFoundError = require('../errors/NotFoundError');
-const ConflictError = require('../errors/ConflictError');
+const ConflictError = require('../errors/conflictError');
 const { errorMessages } = require('../utils/constants');
 
 require('dotenv').config();
@@ -97,7 +97,7 @@ module.exports.login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
-        secure: true,
+        secure: NODE_ENV === 'production',
         sameSite: 'None',
       });
       res.send({ token });
